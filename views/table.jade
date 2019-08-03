@@ -1,0 +1,13 @@
+div
+  table
+    thead
+      tr
+        th rank
+        th email
+        th score
+    tbody
+      each row,i  in data
+        tr(class=(i % 2 == 0) ? 'odd' : 'even') 
+          td #{i+1}
+          td #{row.email}
+          td #{row.score}

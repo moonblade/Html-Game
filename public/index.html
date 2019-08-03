@@ -33,6 +33,9 @@ var snake = {
   y: 160,
   dx: grid,
   dy: 0,
+  score: 0,
+  bestscore: 0,
+  newBest: false,
   cells: [],
   maxCells: 4
 };
@@ -56,8 +59,11 @@ function loop() {
   }
 
   count = 0;
-  context.clearRect(0,0,canvas.width,canvas.height);
-
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "red";
+  context.font = "20px Arial";
+  context.fillText("Score: " + snake.score + "\t\tBest score: " + snake.bestscore, 20, canvas.width);
+  
   snake.x += snake.dx;
   snake.y += snake.dy;
 
@@ -88,6 +94,39 @@ function loop() {
   context.fillStyle = 'red';
   context.fillRect(apple.x, apple.y, grid-1, grid-1);
 
+  function getEmail() {
+    var email = window.localStorage.getItem("emailVismaya");
+    if (email)
+      return email
+    email = prompt("Please enter your email address")
+    window.localStorage.setItem("emailVismaya", email)
+    return email
+  }
+  //sendScore
+  function sendScore() {
+    if (!snake.newBest)
+      return;
+    email = getEmail()
+    url = "http://localhost:3000/api/save"
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        score: snake.bestscore
+      })
+    });
+  }
+
+  //bestscore
+  function best() {
+    if (snake.bestscore < snake.score) {
+      snake.bestscore = snake.score
+      snake.newBest = true;
+    }
+  }
   // draw snake
   context.fillStyle = 'green';
   snake.cells.forEach(function(cell, index) {
@@ -96,7 +135,8 @@ function loop() {
     // snake ate apple
     if (cell.x === apple.x && cell.y === apple.y) {
       snake.maxCells++;
-
+      snake.score +=1
+      best();
       apple.x = getRandomInt(0, 25) * grid;
       apple.y = getRandomInt(0, 25) * grid;
     }
@@ -112,7 +152,9 @@ function loop() {
         snake.maxCells = 4;
         snake.dx = grid;
         snake.dy = 0;
-
+        sendScore();
+        snake.score = 0;
+        snake.newBest = false;
         apple.x = getRandomInt(0, 25) * grid;
         apple.y = getRandomInt(0, 25) * grid;
       }
