@@ -107,7 +107,8 @@ function loop() {
     if (!snake.newBest)
       return;
     email = getEmail()
-    url = "http://localhost:3000/api/save"
+    url = "https://vismaya-game.herokuapp.com/api/save"
+    // url = "http://localhost:3000/api/save"
     fetch(url, {
       method: 'POST',
       headers: {
